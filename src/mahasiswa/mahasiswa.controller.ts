@@ -2,13 +2,14 @@ import {
   Controller,
   Get,
   Post,
-  Put,
-  Delete,
   Body,
   Param,
+  Put,
+  Delete,
 } from '@nestjs/common';
 import { MahasiswaService } from './mahasiswa.service';
-import { Mahasiswa } from './mahasiswa.entity';
+import { CreateMahasiswaDto } from './dto/create-mahasiswa.dto';
+import { UpdateMahasiswaDto } from './update-mahasiswa.dto';
 
 @Controller('mahasiswa')
 export class MahasiswaController {
@@ -20,22 +21,25 @@ export class MahasiswaController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.mahasiswaService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.mahasiswaService.findOne(Number(id));
   }
 
   @Post()
-  create(@Body() mahasiswa: Mahasiswa) {
-    return this.mahasiswaService.create(mahasiswa);
+  create(@Body() createMahasiswaDto: CreateMahasiswaDto) {
+    return this.mahasiswaService.create(createMahasiswaDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateData: Partial<Mahasiswa>) {
-    return this.mahasiswaService.update(id, updateData);
+  update(
+    @Param('id') id: string,
+    @Body() updateMahasiswaDto: UpdateMahasiswaDto,
+  ) {
+    return this.mahasiswaService.update(Number(id), updateMahasiswaDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number) {
-    return this.mahasiswaService.delete(id);
+  delete(@Param('id') id: string) {
+    return this.mahasiswaService.delete(Number(id));
   }
 }

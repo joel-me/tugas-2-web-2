@@ -1,39 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Mahasiswa } from './mahasiswa.entity';
+import { Injectable } from '@nestjs/common';
+import { CreateMahasiswaDto } from './dto/create-mahasiswa.dto';
 
 @Injectable()
 export class MahasiswaService {
-  private mahasiswaList: Mahasiswa[] = [];
+  private mahasiswa: CreateMahasiswaDto[] = [];
+  private nextId = 1; // ID auto-increment
 
-  findAll(): Mahasiswa[] {
-    return this.mahasiswaList;
+  findAll(): CreateMahasiswaDto[] {
+    return this.mahasiswa;
   }
 
-  findOne(id: number): Mahasiswa {
-    const mahasiswa = this.mahasiswaList.find((m) => m.id === id);
-    if (!mahasiswa) {
-      throw new NotFoundException(`Mahasiswa dengan ID ${id} tidak ditemukan`);
-    }
-    return mahasiswa;
+  findOne(id: number): CreateMahasiswaDto | undefined {
+    return this.mahasiswa.find((mhs) => mhs.id === id);
   }
 
-  create(mahasiswa: Mahasiswa): Mahasiswa {
-    mahasiswa.id = this.mahasiswaList.length + 1; // Auto-generate ID
-    this.mahasiswaList.push(mahasiswa);
-    return mahasiswa;
+  create(data: Omit<CreateMahasiswaDto, 'id'>): CreateMahasiswaDto {
+    const newMahasiswa = { id: this.nextId++, ...data }; // Tambahkan id otomatis
+    this.mahasiswa.push(newMahasiswa);
+    return newMahasiswa;
   }
 
-  update(id: number, updateData: Partial<Mahasiswa>): Mahasiswa {
-    const mahasiswa = this.findOne(id);
-    Object.assign(mahasiswa, updateData);
-    return mahasiswa;
+  update(
+    id: number,
+    updateData: Partial<CreateMahasiswaDto>,
+  ): CreateMahasiswaDto | string {
+    const index = this.mahasiswa.findIndex((mhs) => mhs.id === id);
+    if (index === -1) return `Mahasiswa dengan ID ${id} tidak ditemukan`;
+
+    this.mahasiswa[index] = { ...this.mahasiswa[index], ...updateData };
+    return this.mahasiswa[index];
   }
 
-  delete(id: number): void {
-    const index = this.mahasiswaList.findIndex((m) => m.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Mahasiswa dengan ID ${id} tidak ditemukan`);
-    }
-    this.mahasiswaList.splice(index, 1);
+  delete(id: number): string {
+    const index = this.mahasiswa.findIndex((mhs) => mhs.id === id);
+    if (index === -1) return `Mahasiswa dengan ID ${id} tidak ditemukan`;
+
+    this.mahasiswa.splice(index, 1);
+    return `Mahasiswa dengan ID ${id} berhasil dihapus`;
   }
 }
